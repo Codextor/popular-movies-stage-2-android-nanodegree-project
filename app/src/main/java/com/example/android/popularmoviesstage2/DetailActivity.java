@@ -115,15 +115,17 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     public boolean isFavorite(int id) {
-        String selectString = "SELECT * FROM " + MovieContract.MovieEntry.TABLE_NAME + " WHERE " + MovieContract.MovieEntry.COLUMN_ID + " = " + id;
-        Cursor cursor = mDb.rawQuery(selectString, null);
 
         boolean hasObject = false;
-        if(cursor.moveToFirst()){
-            hasObject = true;
+
+        Cursor cursor = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, null, MovieContract.MovieEntry.COLUMN_ID + " = ?", new String[]{Integer.toString(id)}, null);
+
+        if(cursor != null){
+            if (cursor.getCount() > 0)
+                hasObject = true;
+            cursor.close();
         }
 
-        cursor.close();
         return hasObject;
     }
 
@@ -175,7 +177,7 @@ public class DetailActivity extends AppCompatActivity {
     /**
      * Removes the movie with the specified id
      *
-     * @param id           Movie's id in The Movie Database API
+     * @param id Movie's id in The Movie Database API
      * @return True: if removed successfully, False: if failed
      */
     private boolean removeMovie(int id) {
