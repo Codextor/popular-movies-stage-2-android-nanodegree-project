@@ -67,34 +67,64 @@ public class DetailActivity extends AppCompatActivity {
 
         Intent intentThatStartedThisActivity = getIntent();
         if (intentThatStartedThisActivity.hasExtra(Intent.EXTRA_TEXT)) {
+            if (!intentThatStartedThisActivity.hasExtra(Intent.EXTRA_REFERRER_NAME)) {
 
-            int position = intentThatStartedThisActivity.getIntExtra(Intent.EXTRA_TEXT, 0);
+                int position = intentThatStartedThisActivity.getIntExtra(Intent.EXTRA_TEXT, 0);
 
-            try {
-                movieDetails = getMovieDetailsFromJson(jsonMovieResponse, position);
-                mTitleText.setText(movieDetails.getString("title"));
+                try {
+                    movieDetails = getMovieDetailsFromJson(jsonMovieResponse, position);
+                    mTitleText.setText(movieDetails.getString("title"));
 
-                posterForThisMovie = simpleJsonMovieData[position];
-                Picasso.get().load(posterForThisMovie).resize(posterWidth, 0).into(mPosterImage);
+                    posterForThisMovie = simpleJsonMovieData[position];
+                    Picasso.get().load(posterForThisMovie).resize(posterWidth, 0).into(mPosterImage);
 
-                releaseYear = movieDetails.getString("release_date").substring(0, 4);
-                mReleaseText.setText(releaseYear);
+                    releaseYear = movieDetails.getString("release_date").substring(0, 4);
+                    mReleaseText.setText(releaseYear);
 
-                rating = movieDetails.getString("vote_average") + "/10";
-                mRatingText.setText(rating);
+                    rating = movieDetails.getString("vote_average") + "/10";
+                    mRatingText.setText(rating);
 
-                mSynopsisText.setText(movieDetails.getString("overview"));
+                    mSynopsisText.setText(movieDetails.getString("overview"));
 
-                movieId = movieDetails.getInt("id");
+                    movieId = movieDetails.getInt("id");
 
-                if (isFavorite(movieId)) {
+                    if (isFavorite(movieId)) {
+                        Log.d(TAG, "movie is already in favorites");
+                        addToFavorite.setChecked(true);
+                    }
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                String id = intentThatStartedThisActivity.getStringExtra(Intent.EXTRA_TEXT);
+                Log.d(TAG, "movie id: " + id);
+                Cursor cursor = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, null, MovieContract.MovieEntry.COLUMN_ID + " = ?", new String[]{id}, null);
+
+                if (cursor != null) {
+                    Log.d(TAG, "found data");
+                    cursor.moveToFirst();
+
+                    int titleIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE);
+                    int posterIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER_PATH);
+                    int releaseIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE);
+                    int ratingIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE);
+                    int synopsisIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_OVERVIEW);
+
+
+                    mTitleText.setText(cursor.getString(titleIndex));
+                    posterForThisMovie = cursor.getString(posterIndex);
+                    Picasso.get().load(posterForThisMovie).resize(posterWidth, 0).into(mPosterImage);
+                    mReleaseText.setText(cursor.getString(releaseIndex));
+                    mRatingText.setText(cursor.getString(ratingIndex));
+                    mSynopsisText.setText(cursor.getString(synopsisIndex));
                     Log.d(TAG, "movie is already in favorites");
                     addToFavorite.setChecked(true);
+
+                    cursor.close();
                 }
 
-
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
 
@@ -120,7 +150,7 @@ public class DetailActivity extends AppCompatActivity {
 
         Cursor cursor = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, null, MovieContract.MovieEntry.COLUMN_ID + " = ?", new String[]{Integer.toString(id)}, null);
 
-        if(cursor != null){
+        if (cursor != null) {
             if (cursor.getCount() > 0)
                 hasObject = true;
             cursor.close();

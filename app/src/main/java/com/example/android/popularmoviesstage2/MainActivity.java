@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Lis
 
     static String jsonMovieResponse;
     static String[] simpleJsonMovieData;
+    static String[] favoriteMoviesId;
 
     private RecyclerView mRecyclerView;
     private PosterAdapter mPosterAdapter;
@@ -155,17 +156,21 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Lis
                 }
 
                 if (sortOrder == getString(R.string.favorites_key)) {
-                    Cursor cursor = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, new String[]{MovieContract.MovieEntry.COLUMN_POSTER_PATH}, null, null, null);
+                    Cursor cursor = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, new String[]{MovieContract.MovieEntry.COLUMN_ID, MovieContract.MovieEntry.COLUMN_POSTER_PATH}, null, null, null);
 
                     if(cursor != null){
                         int count = cursor.getCount();
                         if (count > 0) {
-                            int titleIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER_PATH);
+                            int idIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_ID);
+                            int posterIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER_PATH);
+                            favoriteMoviesId = new String[count];
                             simpleJsonMovieData = new String[count];
 
                             int i = 0;
                             while (cursor.moveToNext()) {
-                                simpleJsonMovieData[i] = cursor.getString(titleIndex);
+                                favoriteMoviesId[i] = cursor.getString(idIndex);
+                                simpleJsonMovieData[i] = cursor.getString(posterIndex);
+                                i++;
                             }
                         } else {
                             simpleJsonMovieData = new String[0];
@@ -228,7 +233,16 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Lis
 
         Context context = MainActivity.this;
         Intent intent = new Intent(context, destinationActivity);
-        intent.putExtra(Intent.EXTRA_TEXT, clickedItemIndex);
+
+        if (sortOrder == getString(R.string.favorites_key)) {
+            Log.d(TAG, "from favorites screen");
+            intent.putExtra(Intent.EXTRA_TEXT, favoriteMoviesId[clickedItemIndex]);
+            intent.putExtra(Intent.EXTRA_REFERRER_NAME, getString(R.string.favorites_key));
+        }
+        else {
+            Log.d(TAG, "not from favorites screen");
+            intent.putExtra(Intent.EXTRA_TEXT, clickedItemIndex);
+        }
 
         startActivity(intent);
     }
