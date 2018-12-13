@@ -41,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Lis
     private TextView mErrorMessageDisplay;
     private ProgressBar mLoadingIndicator;
 
+    public static boolean favoritesUpdated = false;
+
     private static final int MOVIE_LOADER_ID = 0;
 
     @Override
@@ -134,6 +136,11 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Lis
 
             @Override
             protected void onStartLoading() {
+
+                if (sortOrder == getString(R.string.favorites_key) && favoritesUpdated == true) {
+                    cachedMoviesData = null;
+                    favoritesUpdated = false;
+                }
                 /*
                  * If we already have cached results, just deliver them now. If we don't have any
                  * cached results, force a load.
@@ -158,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Lis
                 if (sortOrder == getString(R.string.favorites_key)) {
                     Cursor cursor = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, new String[]{MovieContract.MovieEntry.COLUMN_ID, MovieContract.MovieEntry.COLUMN_POSTER_PATH}, null, null, null);
 
-                    if(cursor != null){
+                    if (cursor != null) {
                         int count = cursor.getCount();
                         if (count > 0) {
                             int idIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_ID);
@@ -238,8 +245,7 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Lis
             Log.d(TAG, "from favorites screen");
             intent.putExtra(Intent.EXTRA_TEXT, favoriteMoviesId[clickedItemIndex]);
             intent.putExtra(Intent.EXTRA_REFERRER_NAME, getString(R.string.favorites_key));
-        }
-        else {
+        } else {
             Log.d(TAG, "not from favorites screen");
             intent.putExtra(Intent.EXTRA_TEXT, clickedItemIndex);
         }

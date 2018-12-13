@@ -20,6 +20,7 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONObject;
 
+import static com.example.android.popularmoviesstage2.MainActivity.favoritesUpdated;
 import static com.example.android.popularmoviesstage2.MainActivity.jsonMovieResponse;
 import static com.example.android.popularmoviesstage2.MainActivity.simpleJsonMovieData;
 import static com.example.android.popularmoviesstage2.utilities.JsonUtils.getMovieDetailsFromJson;
@@ -111,7 +112,7 @@ public class DetailActivity extends AppCompatActivity {
                     int releaseIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE);
                     int ratingIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE);
                     int synopsisIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_OVERVIEW);
-
+                    int idIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_ID);
 
                     mTitleText.setText(cursor.getString(titleIndex));
                     posterForThisMovie = cursor.getString(posterIndex);
@@ -120,6 +121,7 @@ public class DetailActivity extends AppCompatActivity {
                     mRatingText.setText(cursor.getString(ratingIndex));
                     mSynopsisText.setText(cursor.getString(synopsisIndex));
                     Log.d(TAG, "movie is already in favorites");
+                    movieId = cursor.getInt(idIndex);
                     addToFavorite.setChecked(true);
 
                     cursor.close();
@@ -191,6 +193,8 @@ public class DetailActivity extends AppCompatActivity {
      */
     private void addNewMovie(int id, String vote_average, String title, String poster_path, String overview, String release_date) {
 
+        favoritesUpdated = true;
+
         ContentValues cv = new ContentValues();
 
         cv.put(MovieContract.MovieEntry.COLUMN_ID, id);
@@ -211,6 +215,8 @@ public class DetailActivity extends AppCompatActivity {
      * @return True: if removed successfully, False: if failed
      */
     private boolean removeMovie(int id) {
+
+        favoritesUpdated = true;
 
         return getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI, MovieContract.MovieEntry.COLUMN_ID + " = ?", new String[]{Integer.toString(id)}) > 0;
 
