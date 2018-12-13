@@ -2,6 +2,7 @@ package com.example.android.popularmoviesstage2;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.android.popularmoviesstage2.data.MovieContract;
 import com.example.android.popularmoviesstage2.utilities.JsonUtils;
 import com.example.android.popularmoviesstage2.utilities.NetworkUtils;
 
@@ -97,6 +99,10 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Lis
             sortOrder = getString(R.string.top_rated_key);
             invalidateData();
             getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
+        } else if (menuItemThatWasSelected == R.id.action_favorites) {
+            sortOrder = getString(R.string.favorites_key);
+            invalidateData();
+            getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
         }
         return true;
     }
@@ -120,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Lis
     }
 
     @Override
-    public Loader<String[]> onCreateLoader(int id, final Bundle args) {
+    public Loader<String[]> onCreateLoader(final int id, final Bundle args) {
         return new AsyncTaskLoader<String[]>(this) {
 
             String[] cachedMoviesData;
@@ -146,6 +152,27 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Lis
 
                 if (sortOrder == null || TextUtils.isEmpty(sortOrder)) {
                     return null;
+                }
+
+                if (sortOrder == getString(R.string.favorites_key)) {
+                    Cursor cursor = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, new String[]{MovieContract.MovieEntry.COLUMN_POSTER_PATH}, null, null, null);
+
+                    if(cursor != null){
+                        int count = cursor.getCount();
+                        if (count > 0) {
+                            int titleIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER_PATH);
+                            simpleJsonMovieData = new String[count];
+
+                            int i = 0;
+                            while (cursor.moveToNext()) {
+                                simpleJsonMovieData[i] = cursor.getString(titleIndex);
+                            }
+                        } else {
+                            simpleJsonMovieData = new String[0];
+                        }
+                        cursor.close();
+                    }
+                    return simpleJsonMovieData;
                 }
 
                 URL movieRequestUrl = NetworkUtils.buildUrl(sortOrder, MainActivity.this);
