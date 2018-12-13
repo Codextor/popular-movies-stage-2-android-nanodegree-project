@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Popular Movies, Stage 2</string>
+    <string name="most_popular_key">Most Popular</string>
+    <string name="top_rated_key">Top Rated</string>
+    <string name="error_message">"An error has occurred. Please try again later."</string>
+    <string name="action_most_popular">Sort by Most Popular</string>
+    <string name="action_top_rated">Sort by Top Rated</string>
+    <string name="poster_description">Poster for the Movie</string>
+    <string name="favorite_switch_label">FAVORITE</string>
+</resources>
