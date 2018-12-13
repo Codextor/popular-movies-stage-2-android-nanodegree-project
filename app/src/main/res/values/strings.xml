@@ -7,4 +7,5 @@
     <string name="action_top_rated">Sort by Top Rated</string>
     <string name="poster_description">Poster for the Movie</string>
     <string name="favorite_switch_label">FAVORITE</string>
+    <string name="action_favorites">Show Favorites</string>
 </resources>
