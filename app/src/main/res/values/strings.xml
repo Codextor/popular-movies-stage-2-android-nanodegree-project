@@ -9,4 +9,6 @@
     <string name="poster_description">Poster for the Movie</string>
     <string name="favorite_switch_label">FAVORITE</string>
     <string name="action_favorites">Show Favorites</string>
+    <string name="play_button_label">Play</string>
+    <string name="trailers">Trailers:</string>
 </resources>

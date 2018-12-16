@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.CompoundButton;
@@ -28,6 +30,10 @@ import static com.example.android.popularmoviesstage2.utilities.JsonUtils.getMov
 public class DetailActivity extends AppCompatActivity {
 
     private static final String TAG = DetailActivity.class.getSimpleName();
+
+    private static final int NUM_LIST_ITEMS = 100;
+    private VideoAdapter mAdapter;
+    private RecyclerView mVideosList;
 
     private TextView mTitleText;
     private ImageView mPosterImage;
@@ -143,6 +149,15 @@ public class DetailActivity extends AppCompatActivity {
                 }
             }
         });
+
+        mVideosList = findViewById(R.id.rv_videos);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        mVideosList.setLayoutManager(layoutManager);
+        mVideosList.setHasFixedSize(true);
+
+        mAdapter = new VideoAdapter(NUM_LIST_ITEMS);
+        mVideosList.setAdapter(mAdapter);
 
     }
 
